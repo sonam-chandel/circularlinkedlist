@@ -1,0 +1,286 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+void create();
+void display();
+void insert_beg();
+void insert_end();
+void insert_spe();
+void delete_beg();
+void delete_end();
+void delete_spe();
+int getlength();
+
+struct node *s = NULL;
+
+int main()
+{
+    int choice;
+    char ch;
+    do
+    {
+        printf("1: create, 2: display, 3: insert_beg, 4: insert_end, 5: insert_spe, 6: delete_beg, 7: delete_end, 8: delete_spe, 0: Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice)
+        {
+        case 1:
+            create();
+            break;
+        case 2:
+            display();
+            break;
+        case 3:
+            insert_beg();
+            break;
+        case 4:
+            insert_end();
+            break;
+        case 5:
+            insert_spe();
+            break;
+        case 6:
+            delete_beg();
+            break;
+        case 7:
+            delete_end();
+            break;
+        case 8:
+            delete_spe();
+            break;
+        case 0:
+            exit(0);
+        default:
+            printf("Wrong input\n");
+            break;
+        }
+        printf("Press y to continue or any other key to exit: ");
+        scanf(" %c", &ch);
+    } while (ch == 'y' || ch == 'Y');
+    return 0;
+}
+
+void create()
+{
+    char ch;
+    struct node *p, *q;
+    p = (struct node *)malloc(sizeof(struct node));
+    printf("Enter new node data: ");
+    scanf("%d", &p->data);
+    s = p;
+    p->next = s; // First node points to itself
+
+    do
+    {
+        q = (struct node *)malloc(sizeof(struct node));
+        printf("Enter the data: ");
+        scanf("%d", &q->data);
+        p->next = q;
+        p = q;
+        p->next = s; 
+
+        printf("Press y to continue: ");
+        scanf(" %c", &ch);
+    } while (ch == 'y');
+}
+
+void display()
+{
+    struct node *q = s;
+
+    if (q == NULL)
+    {
+        printf("Linked list is empty.\n");
+        return;
+    }
+
+    do
+    {
+        printf("%d\n", q->data);
+        q = q->next;
+    } while (q != s);
+}
+
+void insert_beg()
+{
+    struct node *p = (struct node *)malloc(sizeof(struct node));
+    printf("Enter the node you want to insert: ");
+    scanf("%d", &p->data);
+
+    if (s == NULL)
+    {
+        p->next = p; // Points to itself
+        s = p;
+    }
+    else
+    {
+        struct node *tail = s;
+        while (tail->next != s)
+        {
+            tail = tail->next;
+        }
+        p->next = s;
+        tail->next = p;
+        s = p;
+    }
+}
+
+void insert_end()
+{
+    struct node *p = (struct node *)malloc(sizeof(struct node));
+    printf("Enter the data for the new node to insert at the end: ");
+    scanf("%d", &p->data);
+    p->next = s;
+
+    if (s == NULL)
+    {
+        s = p;
+        p->next = p; // Points to itself
+    }
+    else
+    {
+        struct node *tail = s;
+        while (tail->next != s)
+        {
+            tail = tail->next;
+        }
+        tail->next = p;
+    }
+}
+
+void insert_spe()
+{
+    struct node *p, *q;
+    int pos, l, i = 1;
+    printf("Enter the position: ");
+    scanf("%d", &pos);
+    l = getlength();
+    if (pos < 1 || pos > l + 1)
+    {
+        printf("Invalid position.\n");
+    }
+    else if (pos == 1)
+    {
+        insert_beg();
+    }
+    else
+    {
+        p = (struct node *)malloc(sizeof(struct node));
+        printf("Enter the node you want to insert: ");
+        scanf("%d", &p->data);
+
+        q = s;
+        while (i < pos - 1)
+        {
+            q = q->next;
+            i++;
+        }
+        p->next = q->next;
+        q->next = p;
+    }
+}
+
+void delete_beg()
+{
+    if (s == NULL)
+    {
+        printf("The linked list is empty.\n");
+        return;
+    }
+
+    struct node *tail = s;
+    while (tail->next != s)
+    {
+        tail = tail->next;
+    }
+
+    if (s->next == s)
+    { // Only one node
+        free(s);
+        s = NULL;
+    }
+    else
+    {
+        tail->next = s->next;
+        free(s);
+        s = tail->next;
+    }
+}
+
+void delete_end()
+{
+    if (s == NULL)
+    {
+        printf("The linked list is empty.\n");
+        return;
+    }
+
+    struct node *current = s, *previous = NULL;
+    while (current->next != s)
+    {
+        previous = current;
+        current = current->next;
+    }
+
+    if (previous == NULL)
+    { // Only one node
+        free(s);
+        s = NULL;
+    }
+    else
+    {
+        previous->next = s; // Connect previous node to head
+        free(current);
+    }
+}
+
+void delete_spe()
+{
+    int pos, i = 1, l;
+    struct node *current = s, *previous = NULL;
+    printf("Enter the position: ");
+    scanf("%d", &pos);
+    l = getlength();
+    if (pos < 1 || pos > l)
+    {
+        printf("Invalid position.\n");
+        return;
+    }
+    else if (pos == 1)
+    {
+        delete_beg();
+        return;
+    }
+
+    while (i < pos)
+    {
+        previous = current;
+        current = current->next;
+        i++;
+    }
+
+    previous->next = current->next;
+    free(current);
+}
+
+int getlength()
+{
+    int count = 0;
+    struct node *q = s;
+    if (q == NULL)
+        return 0;
+
+    do
+    {
+        count++;
+        q = q->next;
+    } while (q != s);
+
+    return count;
+}
